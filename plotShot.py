@@ -8,7 +8,6 @@ shotFile = open(argv[1],"r")
 
 header = array('c')
 header.fromfile(shotFile,1024)
-print header
 header = header.tostring()
 Qs = header.split("&")[0].split("-")
 i = 0

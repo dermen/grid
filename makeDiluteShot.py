@@ -33,6 +33,7 @@ workDir = params["workDir"]
 samp = params["samp"]
 Nphi = int( params["Nphi"] ) 
 computeAngAve = params[ "computeAngAve"]
+pathToAngAve = params[ "pathToAngAve"]
 
 ## make directories for output
 sampDir = workDir + samp + "/"
@@ -141,5 +142,5 @@ while i < numShots:
 	i += 1
 
 if computeAngAve == "1":
-	os.system("python angAve.py "+outDir)
-	
+	os.system("python /path/to/angAve.py "+outDir)
+
