@@ -7,24 +7,27 @@ from sys import argv
 
 # will convert this file to c++ code
 
-
 ### **** ENTER USER PARAMS ****
-workDir =  "/Users/dermen/gridOut/"
-samp = "goldSmall"
-sampDir = workDir + samp + "/"
-factorDir = sampDir + "factors/"
-anglesPerShot = 10  #number of molecules/particles per shot
-numShots = 50 # total number of simulated shots
-shotQs = range(50,200,1)
-Nphi = 360
-### **** END **** 
+totalAngles = 1000 # number of angles in each factor file
+anglesPerShot = 20  #number of molecules/particles per shot
+numShots = 1 # total number of simulated shots
+workDir = "/Users/dermen/gridOut/"
+samp = "pent"
+shotQs = range(50,200,1) # range of q values to compute intensity 
+#			              ^(0.02 Ang^1 units)
+Nphi = 360 # number of angular bins per q in factor files
+computeAngAve = True
+### **** END **
 
+sampDir = workDir + samp + "/"
 outDir = sampDir + "shots/"
 if not os.path.exists(outDir):
 	os.makedirs(outDir)
 outDir = outDir + str(anglesPerShot) + "angles/"
 if not os.path.exists(outDir):
 	os.makedirs(outDir)
+
+factorDir = sampDir + "factors/" + str(totalAngles) + "angles/"
 
 qFiles = []
 factorFiles = os.listdir(factorDir)
@@ -41,8 +44,6 @@ while i < len(qFiles):
 	Qs.append(str(q))
 	qFiles[i] = qFiles[i][1]
 	i += 1
-totalAngles = factorFiles[0].split("-")[1].split("angles")[0]
-totalAngles = int(totalAngles)
 del factorFiles
 del shotQs
 
@@ -73,7 +74,6 @@ while shotIndex < numShots:
 		i += 1
 	shotIndex += 1
 #### ***** END **** 
-
 
 qIndex = 0
 while qIndex < len(Qs):
@@ -116,8 +116,13 @@ while qIndex < len(Qs):
 		binData.tofile(outFiles[shotIndex])
 		shotIndex += 1
 	qIndex += 1
+	binFile.close()
 	
 i = 0
 while i < numShots:
 	outFiles[i].close()
 	i += 1
+
+if computeAngAve:
+	os.system("python angAve.py "+outDir)
+	

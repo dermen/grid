@@ -12,7 +12,7 @@ PathToGrid = "/Users/dermen/gridFiles/polar/grid/GridFQ"
 
 workDir = "/Users/dermen/gridOut/"
 
-coorInputFileName = "goldSmall.coor" #should be in working directory
+coorInputFileName = "pent.coor" #should be in working directory
 '''
 
 *.coor should be an N-line txt file in this format:
@@ -25,7 +25,7 @@ xN yN zN AtomIDN
 '''
 
 #Q values to consider (in units of 0.02 Ang^-1)
-Qs = range(50,200,1) 
+Qs = range(0,250,1)
 # 1.00 Ang^-1 to 3.98 Ang^-1 in steps of 0.02 Ang^-1
 
 #Qs = [124,252] # 2.48 Ang^-1 and 5.04 Ang^-1
@@ -34,7 +34,7 @@ numQs = len(Qs)
 # number of sample points along the diffraction ring
 Nphi = "360" # 1 degree angular resolution
 
-numAngles = 100 #orientations
+numAngles = 1000 #orientations
 # ^ this will be the number of random orientations at which 
 #   the scattering factors will be computed
 
@@ -79,6 +79,9 @@ outDir = workDir + samp + "/"
 if not os.path.exists(outDir):
 	os.makedirs(outDir)
 outDir = outDir + "factors/"
+if not os.path.exists(outDir):
+	os.makedirs(outDir)
+outDir = outDir + str(numAngles)+"angles/"
 if not os.path.exists(outDir):
 	os.makedirs(outDir)
 
@@ -154,7 +157,7 @@ while procIndex < numProcs:
 		qArray.append( str( theta ) )
 		qArray.append( str( qA    ) )
 		qArray.append( str( q     ) )
-		outFileName = str(q) + samp + "-"+str(numAngles)+"angles-"+str(procIndex)+".bin"
+		outFileName = str(q)+samp+"-"+str(procIndex)+".bin"
 		outFileName = outDir + outFileName
 		outFileNames.append(outFileName)
 	numOutFileNames = str( len(Qs) )
