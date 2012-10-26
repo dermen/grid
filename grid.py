@@ -10,9 +10,9 @@ import re
 
 PathToGrid = "/Users/dermen/gridFiles/polar/grid/GridFQ"
 
-workDir = "/Users/dermen/pentGrid/"
+workDir = "/Users/dermen/gridOut/"
 
-coorInputFileName = "pent.coor" #should be in working directory
+coorInputFileName = "goldSmall.coor" #should be in working directory
 '''
 
 *.coor should be an N-line txt file in this format:

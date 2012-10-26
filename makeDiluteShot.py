@@ -5,10 +5,12 @@ from array import array
 import random
 from sys import argv
 
+# will convert this file to c++ code
+
 
 ### **** ENTER USER PARAMS ****
-workDir =  "/Users/dermen/pentGrid/"
-samp = "pent"
+workDir =  "/Users/dermen/gridOut/"
+samp = "goldSmall"
 sampDir = workDir + samp + "/"
 factorDir = sampDir + "factors/"
 anglesPerShot = 10  #number of molecules/particles per shot
@@ -26,12 +28,19 @@ if not os.path.exists(outDir):
 
 qFiles = []
 factorFiles = os.listdir(factorDir)
-Qs = []
 for i in factorFiles:
 	q = i.split(samp)[0]
 	if shotQs.count( int(q) ) > 0:
-		qFiles.append(factorDir +i)
-		Qs.append(q)
+		qFiles.append([int(q),factorDir +i])
+
+qFiles = sorted(qFiles)
+Qs = []
+i = 0
+while i < len(qFiles):
+	q = qFiles[i][0]
+	Qs.append(str(q))
+	qFiles[i] = qFiles[i][1]
+	i += 1
 totalAngles = factorFiles[0].split("-")[1].split("angles")[0]
 totalAngles = int(totalAngles)
 del factorFiles
