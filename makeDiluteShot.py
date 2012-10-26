@@ -7,18 +7,34 @@ from sys import argv
 
 # will convert this file to c++ code
 
-### **** ENTER USER PARAMS ****
-totalAngles = 1000 # number of angles in each factor file
-anglesPerShot = 20  #number of molecules/particles per shot
-numShots = 1 # total number of simulated shots
-workDir = "/Users/dermen/gridOut/"
-samp = "pent"
-shotQs = range(50,200,1) # range of q values to compute intensity 
-#			              ^(0.02 Ang^1 units)
-Nphi = 360 # number of angular bins per q in factor files
-computeAngAve = True
-### **** END **
+cfgFile = open(argv[1],"r")
 
+params = []
+for line in cfgFile.readlines():
+	if not re.search("^#",line):
+	  if re.search("=",line):
+	  	line= line.strip().split()
+		key = line[0]
+		val = line[2]
+		params.append((key,val))
+
+params = dict(params)
+
+#Q values to ompute intensity
+qMin = int ( params["qMin"] )
+qMax = int ( params["qMax"] )
+dq   = int ( params["dq"  ] )
+shotQs= range(qMin,qMax,dq)
+
+totalAngles = int( params["totalAngles"] )
+anglesPerShot = int( params["anglesPerShot"] )
+numShots = int ( params["numShots"] )
+workDir = params["workDir"]
+samp = params["samp"]
+Nphi = int( params["Nphi"] ) 
+computeAngAve = params[ "computeAngAve"]
+
+## make directories for output
 sampDir = workDir + samp + "/"
 outDir = sampDir + "shots/"
 if not os.path.exists(outDir):
@@ -27,14 +43,15 @@ outDir = outDir + str(anglesPerShot) + "angles/"
 if not os.path.exists(outDir):
 	os.makedirs(outDir)
 
+# gather the scattering factor files
 factorDir = sampDir + "factors/" + str(totalAngles) + "angles/"
-
 qFiles = []
 factorFiles = os.listdir(factorDir)
 for i in factorFiles:
 	q = i.split(samp)[0]
 	if shotQs.count( int(q) ) > 0:
 		qFiles.append([int(q),factorDir +i])
+
 
 qFiles = sorted(qFiles)
 Qs = []
@@ -123,6 +140,6 @@ while i < numShots:
 	outFiles[i].close()
 	i += 1
 
-if computeAngAve:
+if computeAngAve == "1":
 	os.system("python angAve.py "+outDir)
 	

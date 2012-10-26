@@ -8,39 +8,34 @@ from numpy import dot,identity,matrix,outer
 import numpy as np
 import re
 
-PathToGrid = "/Users/dermen/gridFiles/polar/grid/GridFQ"
+cfgFile = open(argv[1],"r")
 
-workDir = "/Users/dermen/gridOut/"
+params = []
+for line in cfgFile.readlines():
+	if not re.search("^#",line):
+	  if re.search("=",line):
+	  	line= line.strip().split()
+		key = line[0]
+		val = line[2]
+		params.append((key,val))
 
-coorInputFileName = "pent.coor" #should be in working directory
-'''
+params = dict(params)
 
-*.coor should be an N-line txt file in this format:
-x1 y1 z1 AtomID1
-x2 y2 z2 AtomID2
-...
-...
-xN yN zN AtomIDN
+PathToGrid = params["PathToGrid"]
+workDir    = params["workDir"   ]
 
-'''
+coorInputFileName = params["coorInputFileName"]
 
 #Q values to consider (in units of 0.02 Ang^-1)
-Qs = range(0,250,1)
-# 1.00 Ang^-1 to 3.98 Ang^-1 in steps of 0.02 Ang^-1
+qMin = int ( params["qMin"] )
+qMax = int ( params["qMax"] )
+dq   = int ( params["dq"  ] )
+Qs   = range(qMin,qMax,dq)
+numQs= len(Qs)
 
-#Qs = [124,252] # 2.48 Ang^-1 and 5.04 Ang^-1
-numQs = len(Qs)
-
-# number of sample points along the diffraction ring
-Nphi = "360" # 1 degree angular resolution
-
-numAngles = 1000 #orientations
-# ^ this will be the number of random orientations at which 
-#   the scattering factors will be computed
-
-# enter 1 to delete randomly generated atomic coors
-# after completion; 0 if you want to keep them
-cleanUp = "1"
+Nphi = params["Nphi"]
+numAngles = int (params["numAngles"] )
+cleanUp = params["cleanUp"]
 
 if re.search("/",coorInputFileName):
 	samp = coorInputFileName.split("/")[-1].split(".coor")[0]
@@ -75,6 +70,8 @@ def RandomRotation():
 #generate a sub directory for output
 if workDir[-1] != "/":
 	workDir = workDir + "/"
+if not os.path.exists(workDir):
+	os.makedirs(workDir)
 outDir = workDir + samp + "/"
 if not os.path.exists(outDir):
 	os.makedirs(outDir)
@@ -87,7 +84,7 @@ if not os.path.exists(outDir):
 
 # read in the atomic info (coors and ID)
 moleculeStructure = []
-for i in open(workDir + coorInputFileName,'r').readlines():
+for i in open(coorInputFileName,'r').readlines():
 	i = i.strip().split()
 	x = float(i[0])
 	y = float(i[1])
