@@ -8,7 +8,7 @@ from numpy import dot,identity,matrix,outer
 import numpy as np
 import re
 
-PathToGrid = "/Users/dermen/grid/polar/src/GridFQ"
+PathToGrid = "/Users/dermen/gridFiles/polar/grid/GridFQ"
 
 workDir = "/Users/dermen/pentGrid/"
 
