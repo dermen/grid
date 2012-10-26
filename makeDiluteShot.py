@@ -7,29 +7,29 @@ from sys import argv
 
 
 ### **** ENTER USER PARAMS ****
-
 workDir =  "/Users/dermen/pentGrid/"
 samp = "pent"
 sampDir = workDir + samp + "/"
-outDir = sampDir + "shots/"
 factorDir = sampDir + "factors/"
-if not os.path.exists(outDir):
-	os.makedirs(outDir)
 anglesPerShot = 10  #number of molecules/particles per shot
 numShots = 50 # total number of simulated shots
-shotQs = [60,250]
+shotQs = range(50,200,1)
 Nphi = 360
-phiRange = range(Nphi)
-
 ### **** END **** 
 
+outDir = sampDir + "shots/"
+if not os.path.exists(outDir):
+	os.makedirs(outDir)
+outDir = outDir + str(anglesPerShot) + "angles/"
+if not os.path.exists(outDir):
+	os.makedirs(outDir)
 
 qFiles = []
 factorFiles = os.listdir(factorDir)
 Qs = []
 for i in factorFiles:
 	q = i.split(samp)[0]
-	if shotQs.count(q) > 0:
+	if shotQs.count( int(q) ) > 0:
 		qFiles.append(factorDir +i)
 		Qs.append(q)
 totalAngles = factorFiles[0].split("-")[1].split("angles")[0]
@@ -37,25 +37,21 @@ totalAngles = int(totalAngles)
 del factorFiles
 del shotQs
 
-
 ### **** open output files **** ####
 header = array('c')
 header.fromstring("-".join(Qs))
 while len(header) < 1024:
-	header.append(chr(32))
-outFileNameBase = "-".join([str(numShots)+"shots",str(anglesPerShot)+"angles.bin"])
+	header.append("&")
 outFiles = []
 i = 0
 while i < numShots:
-	outFileName = str(i) + "-" + outFileNameBase
+	outFileName = str(i) + ".bin"
 	outFileName = outDir + outFileName
 	outFile = open(outFileName,"w")
+	header.tofile(outFile)
 	outFiles.append(outFile)
 	i += 1
 ### **** END *** 
-
-
-
 
 #### *** PICK ORIENTATIONS FOR EACH SHOT *** 
 shotIndex = 0
@@ -100,7 +96,6 @@ while qIndex < len(Qs):
 		randStart = shotIndex*anglesPerShot
 		randStop = shotIndex*anglesPerShot + anglesPerShot
 		randomInds = randomIndices[randStart:randStop:1]
-		outFile = outFiles[shotIndex]
 		i = 0
 		while i < Nphi:
 			val = 0
@@ -109,7 +104,7 @@ while qIndex < len(Qs):
 			val = val / float(anglesPerShot)
 			binData.append(val)
 			i += 1
-		binData.tofile(outFile)
+		binData.tofile(outFiles[shotIndex])
 		shotIndex += 1
 	qIndex += 1
 	
