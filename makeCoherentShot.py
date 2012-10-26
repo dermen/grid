@@ -36,13 +36,6 @@ i = 0
 while i < numAngles:
 	binDataA.fromfile(binFile,Nphi)
 	binDataB.fromfile(binFile,Nphi)
-	'''
-	j = 0
-	while j < Nphi:
-		valA = binDataA[i*Nphi + j]
-		valB = binDataB[i*Nphi + j]
-		j += 1
-	'''
 	i += 1
 
 #parameters for translation of molecule

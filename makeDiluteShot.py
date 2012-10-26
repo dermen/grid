@@ -1,87 +1,119 @@
 import os
+import re
 import math
 from array import array
 import random
 from sys import argv
-import pylab as plt
-import datetime
 
-totalAngles = 100000
-numShots = 50
-anglesPerShot = 1000000
-Q = "133"
-samp = "goldMed"
 
-dir = samp + "/"
-if dir[-1] != "/":
-	dir = dir + "/"
+### **** ENTER USER PARAMS ****
 
-outDir = dir + Q + "-"+str(numShots)+"shots-"+str(anglesPerShot)+"angles-dilute/"
-
-if os.path.exists(outDir):
-	print "directory ",outDir,"already exists!"
-	dt = datetime.datetime.today()
-	dt = (str(dt)).split('.')[0]
-	dt = "_".join(dt.split())
-	outDir = outDir.split("dilute/")[0] + "-dilute" + dt + "/"
-	print "creating directory ",outDir
+workDir =  "/Users/dermen/pentGrid/"
+samp = "pent"
+sampDir = workDir + samp + "/"
+outDir = sampDir + "shots/"
+factorDir = sampDir + "factors/"
+if not os.path.exists(outDir):
 	os.makedirs(outDir)
-else:
-	print "creating directory ",outDir
-	os.makedirs(outDir)
-
+anglesPerShot = 10  #number of molecules/particles per shot
+numShots = 50 # total number of simulated shots
+shotQs = [60,250]
 Nphi = 360
 phiRange = range(Nphi)
 
-binFileName = argv[1]
-binFile = open(binFileName,"r")
-binDataA = array('f')
-binDataB = array('f')
-binDataC = array('f')
+### **** END **** 
 
+
+qFiles = []
+factorFiles = os.listdir(factorDir)
+Qs = []
+for i in factorFiles:
+	q = i.split(samp)[0]
+	if shotQs.count(q) > 0:
+		qFiles.append(factorDir +i)
+		Qs.append(q)
+totalAngles = factorFiles[0].split("-")[1].split("angles")[0]
+totalAngles = int(totalAngles)
+del factorFiles
+del shotQs
+
+
+### **** open output files **** ####
+header = array('c')
+header.fromstring("-".join(Qs))
+while len(header) < 1024:
+	header.append(chr(32))
+outFileNameBase = "-".join([str(numShots)+"shots",str(anglesPerShot)+"angles.bin"])
+outFiles = []
 i = 0
-print "loading data into memory..."
-while i < totalAngles:
-	binDataA.fromfile(binFile,Nphi)
-	binDataB.fromfile(binFile,Nphi)
-	j = 0
-	while j < Nphi:
-		valA = binDataA[i*Nphi + j]
-		valB = binDataB[i*Nphi + j]
-		val = valA*valA + valB*valB
-		binDataC.append(val)
-		j += 1
-	#print totalAngles - i
+while i < numShots:
+	outFileName = str(i) + "-" + outFileNameBase
+	outFileName = outDir + outFileName
+	outFile = open(outFileName,"w")
+	outFiles.append(outFile)
 	i += 1
+### **** END *** 
 
-del binDataA
-del binDataB
 
+
+
+#### *** PICK ORIENTATIONS FOR EACH SHOT *** 
 shotIndex = 0
+randomIndices = []
 while shotIndex < numShots:
-	binData = array('f')
-	randomIndices = []
 	i = 0
 	while i < anglesPerShot:
 		randomIndex = random.randrange(totalAngles)
 		randomIndices.append(randomIndex)
-		print anglesPerShot - i
 		i += 1
-	i = 0
-	while i < Nphi:
-		val = 0
-		for j in randomIndices:
-			val += binDataC[j*Nphi + i]
-		val = val / float(anglesPerShot)
-		binData.append(val)
-		print Nphi - i
-		i += 1
-	outFileName = outDir + Q+"-"+str(shotIndex) + ".bin"
-	outFile = open(outFileName,"w")
-	binData.tofile(outFile)
-	#print numShots - shotIndex
 	shotIndex += 1
+#### ***** END **** 
 
-plt.figure(1)
-plt.plot(phiRange,binData)
-plt.show()
+
+qIndex = 0
+while qIndex < len(Qs):
+	binFileName = qFiles[qIndex]
+	binFile = open(binFileName,"r")
+	binDataA = array('f')
+	binDataB = array('f')
+	binDataC = array('f')
+	# loading data into memory
+	i = 0
+	while i < totalAngles:
+		binDataA.fromfile(binFile,Nphi)
+		binDataB.fromfile(binFile,Nphi)
+		j = 0
+		while j < Nphi:
+			valA = binDataA[i*Nphi + j]
+			valB = binDataB[i*Nphi + j]
+			val = valA*valA + valB*valB
+			binDataC.append(val)
+			j += 1
+		i += 1
+
+	del binDataA
+	del binDataB
+
+	shotIndex = 0
+	while shotIndex < numShots:
+		binData = array('f')
+		randStart = shotIndex*anglesPerShot
+		randStop = shotIndex*anglesPerShot + anglesPerShot
+		randomInds = randomIndices[randStart:randStop:1]
+		outFile = outFiles[shotIndex]
+		i = 0
+		while i < Nphi:
+			val = 0
+			for j in randomInds:
+				val += binDataC[j*Nphi + i]
+			val = val / float(anglesPerShot)
+			binData.append(val)
+			i += 1
+		binData.tofile(outFile)
+		shotIndex += 1
+	qIndex += 1
+	
+i = 0
+while i < numShots:
+	outFiles[i].close()
+	i += 1

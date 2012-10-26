@@ -26,7 +26,7 @@ xN yN zN AtomIDN
 
 #Q values to consider (in units of 0.02 Ang^-1)
 Qs = range(50,200,1) 
-# 1.00 Ang^-1 to 4.00 Ang^-1 in steps of 0.02 Ang^-1
+# 1.00 Ang^-1 to 3.98 Ang^-1 in steps of 0.02 Ang^-1
 
 #Qs = [124,252] # 2.48 Ang^-1 and 5.04 Ang^-1
 numQs = len(Qs)
