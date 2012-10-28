@@ -1,6 +1,7 @@
 import pylab as plt #must install matplotlib
 from sys import argv
 from array import array
+import numpy as np
 
 Nphi = 360
 
@@ -24,13 +25,23 @@ binData.fromfile(shotFile,Nphi*numQs)
 shotFile.close()
 
 I = []
-q = 0
+qStart = 20
+q = Nphi*qStart
+aves = []
 while q < numQs*Nphi:
 	row = binData[q:q+Nphi:1]
 	I.append(row)
+	aves.append(np.average(row))
 	q += Nphi
 
+plotMin= np.average(I) - 0.85*np.std(I)
+plotMax= np.average(I) + 1.85*np.std(I)
+
 plt.figure(1)
-plt.imshow(I,aspect="auto")
+plt.imshow(I,vmin=plotMin,vmax=plotMax,aspect="auto")
+
+plt.figure(2)
+plt.plot(range(len(aves)),aves)
 plt.show()
+
 

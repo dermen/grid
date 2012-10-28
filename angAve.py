@@ -11,7 +11,7 @@ if shotDir[-1] != "/":
 
 shots = []
 for i in os.listdir(shotDir):
-	if re.search("[0-9].bin",i):
+	if re.search(".bin",i):
 		shots.append(shotDir + i) 
 
 # get header of first shot (same on all shots)
