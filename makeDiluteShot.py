@@ -142,5 +142,5 @@ while i < numShots:
 	i += 1
 
 if computeAngAve == "1":
-	os.system("python /path/to/angAve.py "+outDir)
+	os.system("python "+pathToAngAve+" "+outDir)
 
