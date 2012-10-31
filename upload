@@ -1,0 +1,18 @@
+#!/bin/tcsh
+
+
+switch ($1)
+
+	case dermen:
+	rsync -r -a -v -e "ssh -l dermen" --delete --exclude '.git' --exclude '*.o' --exclude 'grid' --exclude 'grid.xcodeproj' drizzle.stanford.edu:/home/dermen/grid/source/* .
+	breaksw
+
+	case drizzle:
+	rsync -r -a -v -e "ssh -l dermen" --delete --exclude '.git' --exclude '*.o' --exclude 'grid' --exclude 'grid.xcodeproj' . drizzle.stanford.edu:/home/dermen/grid/source/
+	breaksw
+	
+	case sellberg:
+	rsync -r -a -v -e "ssh -l sellberg" --delete --exclude '.git' --exclude '*.o' --exclude 'grid' --exclude 'grid.xcodeproj' . psexport.slac.stanford.edu:/reg/neh/home3/sellberg/source/grid/
+	breaksw
+
+endsw
